@@ -7,7 +7,7 @@ var assert = require('assert'),
     xmlenc = require('xml-encryption'),
     saml = require('../lib/saml20');
 
-describe('saml 2.0', function () {
+describe.only('saml 2.0', function () {
 
   it('whole thing with default authnContextClassRef', function () {
     var options = {
@@ -86,6 +86,32 @@ describe('saml 2.0', function () {
     assert.equal('http://example.org/claims/testaccent', attributes[2].getAttribute('Name'));
     assert.equal('fóo', attributes[2].textContent);
     assert.equal('PurposeOfUse',attributes[3].firstChild.firstChild.nodeName);
+  });
+
+  it('should set subject stuff when subjectConfirmation is true', function () {
+    var options = {
+      cert: fs.readFileSync(__dirname + '/test-auth0.pem'),
+      key: fs.readFileSync(__dirname + '/test-auth0.key'),
+      attributes: {
+        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress': 'foo@bar.com',
+        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name': 'Foo Bar',
+        'http://example.org/claims/testemptyarray': [], // should dont include empty arrays
+        'http://example.org/claims/testaccent': 'fóo', // should supports accents
+        'http://undefinedattribute/ws/com.com': undefined,
+        'urn:oasis:names:tc:xspa:1.0:subject:organization': '<PurposeOfUse xmlns="urn:hl7-org:v3" xsi:type="CE" code="TREATMENT" codeSystem="2.16.840.1.113883.3.18.7.1" codeSystemName="nhin-purpose" displayName="Treatment"/>'
+
+      },
+      subjectConfirmationKey: true
+    };
+
+    var signedAssertion = saml.create(options);
+    
+    var isValid = utils.isValidSignature(signedAssertion, options.cert);
+    assert.equal(true, isValid);
+
+    var subjectConfirmation = utils.getSubjectConfirmation(signedAssertion);
+    assert.equal('ds:KeyInfo', subjectConfirmation[0].firstChild.firstChild.nodeName);
+    assert.equal('ds:X509Data', subjectConfirmation[0].firstChild.firstChild.firstChild.nodeName);
   });
 
   it('whole thing with specific authnContextClassRef', function () {
