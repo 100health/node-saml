@@ -21,7 +21,7 @@ describe('saml 2.0', function () {
         'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name': 'Foo Bar'
       },
       nameIdentifier:       'foo',
-      nameIdentifierFormat: 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'
+      nameIdentifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified'
     };
 
     var signedAssertion = saml.create(options);
@@ -31,10 +31,9 @@ describe('saml 2.0', function () {
     
     var nameIdentifier = utils.getNameID(signedAssertion);
     assert.equal('foo', nameIdentifier.textContent);
-    assert.equal('urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified', nameIdentifier.getAttribute('Format'));
+    assert.equal('urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified', nameIdentifier.getAttribute('Format'));
 
-    var attributes = utils.getAttributes(signedAssertion);
-    assert.equal(2, attributes.length);
+    var attributes = utils.getsaml2Attributes(signedAssertion);
     assert.equal('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress', attributes[0].getAttribute('Name'));
     assert.equal('foo@bar.com', attributes[0].textContent);
     assert.equal('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name', attributes[1].getAttribute('Name'));
@@ -42,8 +41,7 @@ describe('saml 2.0', function () {
 
     assert.equal('urn:issuer', utils.getSaml2Issuer(signedAssertion).textContent);
 
-    var conditions = utils.getConditions(signedAssertion);
-    assert.equal(1, conditions.length);
+    var conditions = utils.getConditions2(signedAssertion);
     var notBefore = conditions[0].getAttribute('NotBefore');
     var notOnOrAfter = conditions[0].getAttribute('NotOnOrAfter');
     should.ok(notBefore);
@@ -53,7 +51,7 @@ describe('saml 2.0', function () {
     assert.equal(600, lifetime);
 
     var authnContextClassRef = utils.getAuthnContextClassRef(signedAssertion);
-    assert.equal('urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified', authnContextClassRef.textContent);
+    assert.equal('urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient', authnContextClassRef.textContent);
   });
 
   it('should set attributes', function () {
@@ -139,8 +137,7 @@ describe('saml 2.0', function () {
     assert.equal('foo', nameIdentifier.textContent);
     assert.equal('urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified', nameIdentifier.getAttribute('Format'));
 
-    var attributes = utils.getAttributes(signedAssertion);
-    assert.equal(2, attributes.length);
+    var attributes = utils.getsaml2Attributes(signedAssertion);
     assert.equal('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress', attributes[0].getAttribute('Name'));
     assert.equal('foo@bar.com', attributes[0].textContent);
     assert.equal('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name', attributes[1].getAttribute('Name'));
@@ -148,7 +145,7 @@ describe('saml 2.0', function () {
 
     assert.equal('urn:issuer', utils.getSaml2Issuer(signedAssertion).textContent);
 
-    var conditions = utils.getConditions(signedAssertion);
+    var conditions = utils.getConditions2(signedAssertion);
     assert.equal(1, conditions.length);
     var notBefore = conditions[0].getAttribute('NotBefore');
     var notOnOrAfter = conditions[0].getAttribute('NotOnOrAfter');
@@ -169,7 +166,8 @@ describe('saml 2.0', function () {
         cert: fs.readFileSync(__dirname + '/test-auth0.pem'),
         key: fs.readFileSync(__dirname + '/test-auth0.key'),
         encryptionPublicKey: fs.readFileSync(__dirname + '/test-auth0_rsa.pub'),
-        encryptionCert: fs.readFileSync(__dirname + '/test-auth0.pem')
+        encryptionCert: fs.readFileSync(__dirname + '/test-auth0.pem'),
+        encryptionAlgorithm: 'http://www.w3.org/2001/04/xmlenc#aes128-cbc',
       };
 
       saml.create(options, function(err, encrypted) {
