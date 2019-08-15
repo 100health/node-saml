@@ -88,7 +88,7 @@ describe.only('saml 2.0', function () {
     assert.equal('PurposeOfUse',attributes[3].firstChild.firstChild.nodeName);
   });
 
-  it('should set subject stuff when subjectConfirmation is true', function () {
+  it('should add keyInfo when subjectConfirmation is true', function () {
     var options = {
       cert: fs.readFileSync(__dirname + '/test-auth0.pem'),
       key: fs.readFileSync(__dirname + '/test-auth0.key'),
