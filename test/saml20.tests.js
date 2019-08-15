@@ -7,7 +7,7 @@ var assert = require('assert'),
     xmlenc = require('xml-encryption'),
     saml = require('../lib/saml20');
 
-describe.only('saml 2.0', function () {
+describe('saml 2.0', function () {
 
   it('whole thing with default authnContextClassRef', function () {
     var options = {
