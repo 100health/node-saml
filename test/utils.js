@@ -70,25 +70,36 @@ exports.getNameIdentifier = function(assertion) {
 exports.getNameID = function(assertion) {
   var doc = new xmldom.DOMParser().parseFromString(assertion);
   return doc.documentElement
-            .getElementsByTagName('saml:NameID')[0];
+            .getElementsByTagName('saml2:NameID')[0];
+};
+
+exports.getConditions2 = function(assertion) {
+  var doc = new xmldom.DOMParser().parseFromString(assertion);
+  return doc.documentElement.getElementsByTagName('saml2:Conditions');
+};
+
+exports.getAttributes2 = function(assertion) {
+  var doc = new xmldom.DOMParser().parseFromString(assertion);
+  return doc.documentElement
+            .getElementsByTagName('saml2:Attribute');
 };
 
 exports.getSaml2Issuer = function(assertion) {
   var doc = new xmldom.DOMParser().parseFromString(assertion);
   return doc.documentElement
-            .getElementsByTagName('saml:Issuer')[0];
+            .getElementsByTagName('saml2:Issuer')[0];
 };
 
 exports.getAuthnContextClassRef = function(assertion) {
   var doc = new xmldom.DOMParser().parseFromString(assertion);
   return doc.documentElement
-            .getElementsByTagName('saml:AuthnContextClassRef')[0];
+            .getElementsByTagName('saml2:AuthnContextClassRef')[0];
 };
 
 exports.getSubjectConfirmation = function(assertion) {
   var doc = new xmldom.DOMParser().parseFromString(assertion);
   return doc.documentElement
-            .getElementsByTagName('saml:getSubjectConfirmation');
+            .getElementsByTagName('saml2:SubjectConfirmation');
 };
 
 exports.getEncryptedData = function(encryptedAssertion) {
